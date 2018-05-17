@@ -231,13 +231,39 @@ void zynq_slcr_cpu_state_write(int cpu, bool die)
  */
 int __init zynq_slcr_init(void)
 {
+	#define IDCODE_REG_OFFSET 0x00000530
+	int idcode;
+	
 	zynq_slcr_regmap = syscon_regmap_lookup_by_compatible("xlnx,zynq-slcr");
 	if (IS_ERR(zynq_slcr_regmap)) {
 		pr_err("%s: failed to find zynq-slcr\n", __func__);
 		return -ENODEV;
 	}
 
+	if (!zynq_slcr_read(&idcode, IDCODE_REG_OFFSET)) {
+		idcode >>= 12;
+		idcode &= 0x1f;
+		
+		switch (idcode) {
+		case 0x02:
+			printk("zynq device is 7z010\n");
+			break;
+
+		case 0x07:
+			printk("zynq device is 7z020\n");
+			break;
+
+		default:
+			printk("unknow zynq device code:%02x\n", idcode);
+			break;
+		}
+	} else {
+		printk("read zynq device code err\n");
+	}
+	
 	return 0;
+
+	#undef IDCODE_REG_OFFSET
 }
 
 /**

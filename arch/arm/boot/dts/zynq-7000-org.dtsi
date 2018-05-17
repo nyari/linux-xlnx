@@ -57,7 +57,7 @@
 		regulator-always-on;
 	};
 
-	ps7_axi: amba {
+	amba {
 		compatible = "simple-bus";
 		#address-cells = <1>;
 		#size-cells = <1>;

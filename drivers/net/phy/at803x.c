@@ -16,6 +16,11 @@
 #include <linux/string.h>
 #include <linux/netdevice.h>
 #include <linux/etherdevice.h>
+#include <linux/of.h>
+//#include <linux/of_device.h>
+//#include <linux/of_mdio.h>
+//#include <linux/of_net.h>
+
 
 #define AT803X_INTR_ENABLE			0x12
 #define AT803X_INTR_STATUS			0x13
@@ -219,6 +224,15 @@ static int at803x_config_intr(struct phy_device *phydev)
 	return err;
 }
 
+#if defined(CONFIG_OF)
+static const struct of_device_id ar8035_dt_ids[] = {
+	{ .compatible = "atheros,ar8035" },
+	{ /* sentinel */ }
+};
+MODULE_DEVICE_TABLE(of, macb_dt_ids);
+#endif
+
+
 static struct phy_driver at803x_driver[] = {
 {
 	/* ATHEROS 8035 */
@@ -234,9 +248,18 @@ static struct phy_driver at803x_driver[] = {
 	.flags		= PHY_HAS_INTERRUPT,
 	.config_aneg	= genphy_config_aneg,
 	.read_status	= genphy_read_status,
+	#if 0
 	.driver		= {
 		.owner = THIS_MODULE,
 	},
+	#else
+	.driver		= {
+		.name   = "atheros,ar8035",
+		.owner	= THIS_MODULE,
+		.of_match_table	= of_match_ptr(ar8035_dt_ids),		
+	},
+	#endif
+	
 }, {
 	/* ATHEROS 8030 */
 	.phy_id		= 0x004dd076,

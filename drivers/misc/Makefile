@@ -56,3 +56,4 @@ obj-$(CONFIG_XILINX_TRAFGEN)	+= xilinx_trafgen.o
 obj-y				+= mic/
 obj-$(CONFIG_GENWQE)		+= genwqe/
 obj-$(CONFIG_ECHO)		+= echo/
+obj-$(CONFIG_MYIR_STLM75X)	+= myir_stlm75x.o
