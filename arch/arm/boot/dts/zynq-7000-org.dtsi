@@ -1,22 +1,25 @@
 /*
- * Xilinx Zynq 7000 DTSI
- * Describes the hardware common to all Zynq 7000-based boards.
+ *  Copyright (C) 2011 - 2014 Xilinx
  *
- *  Copyright (C) 2011 - 2015 Xilinx
+ * This software is licensed under the terms of the GNU General Public
+ * License version 2, as published by the Free Software Foundation, and
+ * may be copied, distributed, and modified under those terms.
  *
- * SPDX-License-Identifier:	GPL-2.0+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  */
+/include/ "skeleton.dtsi"
 
 / {
-	#address-cells = <1>;
-	#size-cells = <1>;
 	compatible = "xlnx,zynq-7000";
 
 	cpus {
 		#address-cells = <1>;
 		#size-cells = <0>;
 
-		cpu0: cpu@0 {
+		cpu@0 {
 			compatible = "arm,cortex-a9";
 			device_type = "cpu";
 			reg = <0>;
@@ -30,7 +33,7 @@
 			>;
 		};
 
-		cpu1: cpu@1 {
+		cpu@1 {
 			compatible = "arm,cortex-a9";
 			device_type = "cpu";
 			reg = <1>;
@@ -38,23 +41,14 @@
 		};
 	};
 
-	fpga_full: fpga-full {
-		compatible = "fpga-region";
-		fpga-mgr = <&devcfg>;
-		#address-cells = <1>;
-		#size-cells = <1>;
-		ranges;
-	};
-
-	pmu@f8891000 {
+	pmu {
 		compatible = "arm,cortex-a9-pmu";
 		interrupts = <0 5 4>, <0 6 4>;
 		interrupt-parent = <&intc>;
-		reg = <0xf8891000 0x1000>,
-		      <0xf8893000 0x1000>;
+		reg = < 0xf8891000 0x1000 0xf8893000 0x1000 >;
 	};
 
-	regulator_vccpint: fixedregulator {
+	regulator_vccpint: fixedregulator@0 {
 		compatible = "regulator-fixed";
 		regulator-name = "VCCPINT";
 		regulator-min-microvolt = <1000000>;
@@ -63,15 +57,14 @@
 		regulator-always-on;
 	};
 
-	ps7_axi: amba {
-		u-boot,dm-pre-reloc;
+	amba {
 		compatible = "simple-bus";
 		#address-cells = <1>;
 		#size-cells = <1>;
 		interrupt-parent = <&intc>;
 		ranges;
 
-		adc: adc@f8007100 {
+		adc@f8007100 {
 			compatible = "xlnx,zynq-xadc-1.00.a";
 			reg = <0xf8007100 0x20>;
 			interrupts = <0 7 4>;
@@ -108,8 +101,6 @@
 			#gpio-cells = <2>;
 			clocks = <&clkc 42>;
 			gpio-controller;
-			interrupt-controller;
-			#interrupt-cells = <2>;
 			interrupt-parent = <&intc>;
 			interrupts = <0 20 4>;
 			reg = <0xe000a000 0x1000>;
@@ -145,19 +136,19 @@
 			      <0xF8F00100 0x100>;
 		};
 
-		L2: cache-controller@f8f02000 {
+		L2: cache-controller {
 			compatible = "arm,pl310-cache";
 			reg = <0xF8F02000 0x1000>;
-			interrupts = <0 2 4>;
 			arm,data-latency = <3 2 2>;
 			arm,tag-latency = <2 2 2>;
 			cache-unified;
 			cache-level = <2>;
 		};
 
-		mc: memory-controller@f8006000 {
-			compatible = "xlnx,zynq-ddrc-a05";
+		memory-controller@f8006000 {
+			compatible = "xlnx,zynq-ddrc-1.0";
 			reg = <0xf8006000 0x1000>;
+			xlnx,has-ecc = <0x0>;
 		};
 
 		ocmc: ocmc@f800c000 {
@@ -168,7 +159,7 @@
 		};
 
 		uart0: serial@e0000000 {
-			compatible = "xlnx,xuartps", "cdns,uart-r1p8";
+			compatible = "xlnx,xuartps";
 			status = "disabled";
 			clocks = <&clkc 23>, <&clkc 40>;
 			clock-names = "uart_clk", "pclk";
@@ -177,7 +168,7 @@
 		};
 
 		uart1: serial@e0001000 {
-			compatible = "xlnx,xuartps", "cdns,uart-r1p8";
+			compatible = "xlnx,xuartps";
 			status = "disabled";
 			clocks = <&clkc 24>, <&clkc 41>;
 			clock-names = "uart_clk", "pclk";
@@ -242,30 +233,34 @@
 			nor0: flash@e2000000 {
 				status = "disabled";
 				compatible = "cfi-flash";
-				reg = <0xe2000000 0x2000000>;
+				reg = <0xe2000000 0x1000>;
 				#address-cells = <1>;
 				#size-cells = <1>;
 			};
 		};
 
 		gem0: ethernet@e000b000 {
-			compatible = "cdns,zynq-gem", "cdns,gem";
+			compatible = "xlnx,ps7-ethernet-1.00.a";
 			reg = <0xe000b000 0x1000>;
 			status = "disabled";
 			interrupts = <0 22 4>;
-			clocks = <&clkc 30>, <&clkc 30>, <&clkc 13>;
-			clock-names = "pclk", "hclk", "tx_clk";
+			clocks = <&clkc 13>, <&clkc 30>;
+			clock-names = "ref_clk", "aper_clk";
+			local-mac-address = [00 0a 35 00 00 00];
+			xlnx,has-mdio = <0x1>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 		};
 
 		gem1: ethernet@e000c000 {
-			compatible = "cdns,zynq-gem", "cdns,gem";
+			compatible = "xlnx,ps7-ethernet-1.00.a";
 			reg = <0xe000c000 0x1000>;
 			status = "disabled";
 			interrupts = <0 45 4>;
-			clocks = <&clkc 31>, <&clkc 31>, <&clkc 14>;
-			clock-names = "pclk", "hclk", "tx_clk";
+			clocks = <&clkc 14>, <&clkc 31>;
+			clock-names = "ref_clk", "aper_clk";
+			local-mac-address = [00 0a 35 00 00 00];
+			xlnx,has-mdio = <0x1>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 		};
@@ -291,16 +286,15 @@
 		};
 
 		slcr: slcr@f8000000 {
-			u-boot,dm-pre-reloc;
 			#address-cells = <1>;
 			#size-cells = <1>;
-			compatible = "xlnx,zynq-slcr", "syscon", "simple-mfd";
+			compatible = "xlnx,zynq-slcr", "syscon";
 			reg = <0xF8000000 0x1000>;
 			ranges;
 			clkc: clkc@100 {
-				u-boot,dm-pre-reloc;
 				#clock-cells = <1>;
 				compatible = "xlnx,ps7-clkc";
+				ps-clk-frequency = <33333333>;
 				fclk-enable = <0xf>;
 				clock-output-names = "armpll", "ddrpll", "iopll", "cpu_6or4x",
 						"cpu_3or2x", "cpu_2x", "cpu_1x", "ddr2x", "ddr3x",
@@ -314,19 +308,6 @@
 						"gpio_aper", "lqspi_aper", "smc_aper", "swdt",
 						"dbg_trc", "dbg_apb";
 				reg = <0x100 0x100>;
-			};
-
-			rstc: rstc@200 {
-				compatible = "xlnx,zynq-reset";
-				reg = <0x200 0x48>;
-				#reset-cells = <1>;
-				syscon = <&slcr>;
-			};
-
-			pinctrl0: pinctrl@700 {
-				compatible = "xlnx,pinctrl-zynq";
-				reg = <0x700 0x200>;
-				syscon = <&slcr>;
 			};
 		};
 
@@ -349,18 +330,12 @@
 		};
 
 		devcfg: devcfg@f8007000 {
+			clock-names = "ref_clk", "fclk0", "fclk1", "fclk2", "fclk3";
+			clocks = <&clkc 12>, <&clkc 15>, <&clkc 16>, <&clkc 17>, <&clkc 18>;
 			compatible = "xlnx,zynq-devcfg-1.0";
 			interrupt-parent = <&intc>;
 			interrupts = <0 8 4>;
 			reg = <0xf8007000 0x100>;
-			clocks = <&clkc 12>, <&clkc 15>, <&clkc 16>, <&clkc 17>, <&clkc 18>;
-			clock-names = "ref_clk", "fclk0", "fclk1", "fclk2", "fclk3";
-			syscon = <&slcr>;
-		};
-
-		efuse: efuse@f800d000 {
-			compatible = "xlnx,zynq-efuse";
-			reg = <0xf800d000 0x20>;
 		};
 
 		global_timer: timer@f8f00200 {
@@ -395,33 +370,33 @@
 			clocks = <&clkc 4>;
 		};
 
-		usb0: usb@e0002000 {
-			compatible = "xlnx,zynq-usb-2.20a", "chipidea,usb2";
-			status = "disabled";
-			clocks = <&clkc 28>;
-			interrupt-parent = <&intc>;
-			interrupts = <0 21 4>;
-			reg = <0xe0002000 0x1000>;
-			phy_type = "ulpi";
-		};
-
-		usb1: usb@e0003000 {
-			compatible = "xlnx,zynq-usb-2.20a", "chipidea,usb2";
-			status = "disabled";
-			clocks = <&clkc 29>;
-			interrupt-parent = <&intc>;
-			interrupts = <0 44 4>;
-			reg = <0xe0003000 0x1000>;
-			phy_type = "ulpi";
-		};
-
 		watchdog0: watchdog@f8005000 {
 			clocks = <&clkc 45>;
-			compatible = "cdns,wdt-r1p2";
+			compatible = "xlnx,zynq-wdt-r1p2";
+			device_type = "watchdog";
 			interrupt-parent = <&intc>;
 			interrupts = <0 9 1>;
 			reg = <0xf8005000 0x1000>;
+			reset = <0>;
 			timeout-sec = <10>;
+		};
+
+		usb0: usb@e0002000 {
+			clocks = <&clkc 28>;
+			compatible = "xlnx,ps7-usb-1.00.a", "xlnx,zynq-usb-1.00.a";
+			status = "disabled";
+			interrupt-parent = <&intc>;
+			interrupts = <0 21 4>;
+			reg = <0xe0002000 0x1000>;
+		};
+
+		usb1: usb@e0003000 {
+			clocks = <&clkc 29>;
+			compatible = "xlnx,ps7-usb-1.00.a", "xlnx,zynq-usb-1.00.a";
+			status = "disabled";
+			interrupt-parent = <&intc>;
+			interrupts = <0 44 4>;
+			reg = <0xe0003000 0x1000>;
 		};
 	};
 };

@@ -248,6 +248,9 @@ void zynq_slcr_cpu_state_write(int cpu, bool die)
  */
 int __init zynq_early_slcr_init(void)
 {
+	#define IDCODE_REG_OFFSET 0x00000530
+	int idcode;
+
 	struct device_node *np;
 
 	np = of_find_compatible_node(NULL, NULL, "xlnx,zynq-slcr");
@@ -281,6 +284,29 @@ int __init zynq_early_slcr_init(void)
 	pr_info("%s mapped to %p\n", np->name, zynq_slcr_base);
 
 	of_node_put(np);
+
+	if (!zynq_slcr_read(&idcode, IDCODE_REG_OFFSET)) {
+		idcode >>= 12;
+		idcode &= 0x1f;
+		
+		switch (idcode) {
+		case 0x02:
+			printk("zynq device is 7z010\n");
+			break;
+
+		case 0x07:
+			printk("zynq device is 7z020\n");
+			break;
+
+		default:
+			printk("unknow zynq device code:%02x\n", idcode);
+			break;
+		}
+	} else {
+		printk("read zynq device code err\n");
+	}
+
+	#undef IDCODE_REG_OFFSET
 
 	return 0;
 }

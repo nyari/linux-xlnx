@@ -530,6 +530,13 @@ config XILINX_TRAFGEN
 
 	  If unsure, say N
 
+config MYIR_STLM75X
+    tristate "MYIR stlm75x temperature sensor"
+    depends on ARCH_ZYNQ
+	default y
+    help
+      This option enables support for the stlm75x temperature driver.
+
 source "drivers/misc/jesd204b/Kconfig"
 source "drivers/misc/c2port/Kconfig"
 source "drivers/misc/eeprom/Kconfig"
